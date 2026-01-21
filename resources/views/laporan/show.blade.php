@@ -145,8 +145,8 @@
     </div>
 </div>
 
-@include('Laporan.Modal.Rincian')
-@include('Laporan.Fungsi.RincianAjax')
-@include('Laporan.Modal.Import')
+@include('laporan.Modal.Rincian')
+@include('laporan.Fungsi.RincianAjax')
+@include('laporan.Modal.Import')
 
 @endsection
