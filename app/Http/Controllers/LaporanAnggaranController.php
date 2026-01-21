@@ -429,7 +429,7 @@ class LaporanAnggaranController extends Controller
         ->findOrFail($id);
         $rincian = $this->buildHierarki($anggaran->rincian);
 
-        $pdf = PDF::loadView('Laporan.Export.Pdf', compact('anggaran', 'rincian'))
+        $pdf = PDF::loadView('laporan.Export.Pdf', compact('anggaran', 'rincian'))
             ->setPaper('a4', 'portrait');
 
         // Bersihkan karakter ilegal dari nama subkegiatan
