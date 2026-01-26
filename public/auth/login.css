@@ -1,0 +1,380 @@
+/* =====================================================
+   RESET
+===================================================== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* =====================================================
+   BACKGROUND
+===================================================== */
+body {
+    min-height: 100vh;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: linear-gradient(
+        135deg,
+        #5a6edc 0%,
+        #d7f275 45%,
+        #55c776 100%
+    );
+}
+
+/* =====================================================
+   PAGE WRAPPER (KUNCI STABIL)
+===================================================== */
+.page {
+    position: relative;
+    min-height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    /* 🔥 ATUR JARAK LOGO ↔ LOGIN CARD */
+    padding-top: 260px;
+}
+
+/* =====================================================
+   LOGO ATAS
+===================================================== */
+.top-logos {
+    position: absolute;
+    top: 60px;                /* 🔥 NAIK / TURUN LOGO */
+    left: 50%;
+    transform: translateX(-45%);
+
+    display: flex;
+    align-items: center;
+    gap: 48px;
+
+    z-index: 10;
+    animation: fadeDown 1s ease;
+}
+
+.top-logos .logo {
+    filter: drop-shadow(0 14px 24px rgba(0,0,0,.25));
+    animation: float 4s ease-in-out infinite;
+}
+
+/* LOGO KOTA PALU */
+.top-logos .logo.palu {
+    height: 120px;
+}
+
+/* LOGO SILAPAK (LEBIH BESAR) */
+.top-logos .logo.silapak {
+    height: 180px;
+}
+
+/* =====================================================
+   LOGIN CARD
+===================================================== */
+.login-card {
+    position: relative;
+    z-index: 5;               /* 🔥 KUNCI UTAMA */
+    width: 380px;
+    padding: 36px 32px;
+    border-radius: 22px;
+
+    background: rgba(255, 255, 255, 0.35); /* 🔥 LEBIH TERASA */
+
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+
+    border: 1px solid rgba(255,255,255,0.4);
+
+    box-shadow:
+        0 25px 60px rgba(0,0,0,.22);
+    
+    background: rgba(255,255,255,0.28) !important;
+    backdrop-filter: blur(20px) saturate(140%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(140%) !important;
+}
+
+.login-card > * {
+    position: relative;
+    z-index: 2;
+}
+
+.login-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1; /* 🔥 */
+
+    border-radius: 22px;
+    background: linear-gradient(
+        135deg,
+        rgba(255,255,255,0.45),
+        rgba(255,255,255,0.1)
+    );
+    pointer-events: none;
+}
+
+/* ❌ TIDAK ADA TRANSLATE / TOP / LEFT */
+/* ❌ AGAR TIDAK GESER */
+
+.login-card:hover {
+    box-shadow:
+        0 30px 70px rgba(0,0,0,.22);
+}
+
+/* =====================================================
+   TEXT
+===================================================== */
+.login-card h2 {
+    text-align: center;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1f2937;
+    color: #1f2937;
+    text-shadow: 0 1px 2px rgba(255,255,255,.6);
+}
+
+.login-card p {
+    text-align: center;
+    margin-top: 6px;
+    font-size: 14px;
+    color: #1f4fa3;
+}
+
+.login-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 22px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 3;
+}
+
+/* =====================================================
+   FORM
+===================================================== */
+.form-group {
+    margin-top: 18px;
+}
+
+input,
+select {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 14px;
+
+    border: 1px solid rgba(255,255,255,0.45);
+    outline: none;
+
+    /* 🔥 GLASS INPUT */
+    background: rgba(255,255,255,0.35);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+
+    font-size: 14px;
+    color: #1f2937;
+
+    box-shadow:
+        inset 0 1px 1px rgba(255,255,255,0.6),
+        0 8px 20px rgba(0,0,0,0.12);
+
+    transition: all .25s ease;
+}
+
+input::placeholder {
+    color: rgba(31,41,55,0.6);
+}
+
+select option {
+    background: #f8fafc;
+    color: #1f2937;
+}
+
+input:focus,
+select:focus {
+    background: rgba(255,255,255,0.5);
+    box-shadow:
+        0 0 0 2px rgba(59,130,246,0.35),
+        0 12px 28px rgba(0,0,0,.18);
+}
+
+input:hover,
+select:hover {
+    background: rgba(255,255,255,0.42);
+    box-shadow:
+        0 10px 24px rgba(0,0,0,.16),
+        inset 0 1px 1px rgba(255,255,255,.7);
+}
+
+/* =====================================================
+   BUTTON
+===================================================== */
+button {
+    margin-top: 22px;
+    width: 100%;
+    padding: 14px;
+
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.45);
+
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+
+    /* 🔥 GLASS BUTTON */
+    background: rgba(255,255,255,0.35);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+
+    color: #1f4fa3;
+
+    box-shadow:
+        0 12px 28px rgba(0,0,0,0.18),
+        inset 0 1px 1px rgba(255,255,255,.7);
+
+    transition: all .25s ease;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    background: rgba(255,255,255,0.45);
+    box-shadow:
+        0 20px 40px rgba(0,0,0,.25);
+}
+
+button:active {
+    transform: translateY(0);
+    box-shadow:
+        inset 0 4px 10px rgba(0,0,0,.18);
+}
+/* =====================================================
+   ANIMASI
+===================================================== */
+@keyframes fadeDown {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -20px);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+@media (max-width: 480px) {
+
+    .page {
+        padding-top: 220px;
+    }
+
+    .top-logos {
+        top: 20px;
+        gap: 20px;
+    }
+
+    .top-logos .logo.palu {
+        height: 80px;
+    }
+
+    .top-logos .logo.silapak {
+        height: 120px;
+    }
+
+    .login-card {
+        width: 90%;
+    }
+}
+
+.wave-bg {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 200%;
+    height: 45%;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 100% 100% 0 0;
+    animation: waveMove 18s linear infinite;
+    z-index: 0;
+}
+
+@keyframes waveMove {
+    0% {
+        transform: translateX(0);
+    }
+    50% {
+        transform: translateX(-25%);
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: gridMove 30s linear infinite;
+    z-index: 0;
+}
+
+@keyframes gridMove {
+    from {
+        background-position: 0 0;
+    }
+    to {
+        background-position: 120px 120px;
+    }
+}
+
+#loadingOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(255,255,255,0.85);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.loading-box {
+    text-align: center;
+}
+
+.spinner-logo {
+    width: 220px;          /* 🔥 BESAR */
+    max-width: 70vw;       /* aman di layar kecil */
+    height: auto;
+    margin-bottom: 18px;
+
+    animation: spinLogo 1.4s linear infinite;
+    transform-origin: center center;
+    filter: drop-shadow(0 14px 28px rgba(0,0,0,.25));
+}
+
+.loading-box p {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1f4fa3;
+}
+
+/* Animasi putar logo */
+@keyframes spinLogo {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
