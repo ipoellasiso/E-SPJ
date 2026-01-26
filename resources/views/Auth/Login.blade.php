@@ -21,7 +21,8 @@
     <!-- LOGIN CARD -->
     <div class="login-card glass-card">
 
-        <h2>Selamat Datang... Sistem Pertanggung Jawaban</h2>
+        <h2>Selamat Datang<br>
+            Sistem Pertanggung Jawaban</h2>
         <p><span>Silahkan Login</span></p>
 
         <form id="loginForm">
