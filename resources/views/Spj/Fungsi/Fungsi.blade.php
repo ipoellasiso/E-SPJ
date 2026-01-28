@@ -313,7 +313,7 @@
 
                 // Tampilkan jumlah dengan aman
                 row.find('.jumlah').val(formatRupiah(jumlah));
-                row.find('.jumlah').text(formatRupiah(jumlah)).attr('data-value', jumlah);
+                row.find('.jumlah').text(formatRupiah(jumlah)).data('value', jumlah);
 
                 // RESET warna
                 row.removeClass('table-danger table-warning');
@@ -333,22 +333,14 @@
             function hitungTotalSPJ() {
                 let total = 0;
 
-                // $('#tabel-rincian tbody tr').each(function () {
-                //     // let text = $(this).find('.jumlah').val();
-                //     // total += toNumber(text);
-                //     let jml = Number($(this).find('.jumlah').data('value')) || 0;
-                //     total += jml;
-                // });
-
                 $('#tabel-rincian tbody tr').each(function () {
-                    let text = $(this).find('.jumlah').val();
-                    total += toNumber(text);
+                    let nilai = toNumber($(this).find('.jumlah').data('value'));
+                    total += nilai;
                 });
 
                 $('#totalSpjText').text(formatRupiah(total));
 
-                // $('#totalSpjText').text(formatRupiah(total));
-
+                // progress pagu
                 if (sisaPaguAktif > 0) {
                     let persen = (total / sisaPaguAktif) * 100;
                     $('#progressPagu')

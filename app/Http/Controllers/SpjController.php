@@ -30,6 +30,7 @@ public function index(Request $request)
     // 🔥 Ambil hanya RKA milik unit dari user yang login
     $anggaran = \App\Models\Anggaran::with('subKegiatan')
         ->where('id_unit', $user->id_unit) // ⬅ filter berdasarkan unit user
+        ->where('tahun', $user->tahun) // 🔥
         ->get();
 
     // 🔥 Tambahkan ini
@@ -51,6 +52,7 @@ public function index(Request $request)
     if ($request->ajax()) {
         $spj = \App\Models\Spj::with('anggaran.subKegiatan')
             ->where('id_unit', $user->id_unit) // ⬅ filter juga data SPJ sesuai unit
+            ->whereYear('tanggal', $user->tahun) // 🔥 FILTER TAHUN LOGIN
             ->orderBy('id', 'desc')
             ->get();
 
@@ -143,8 +145,6 @@ public function create()
     $anggaran = Anggaran::with('subKegiatan')->get();
     return view('Spj.create', compact('anggaran'));
 }
-
-
 
 // === SIMPAN SPJ BARU ===
 public function store(Request $request)
@@ -1131,66 +1131,67 @@ public function cetakPenerimaan($id)
     return $pdf->stream("BA-Penerimaan-Barang.pdf");
 }
 
-    public function cetakHonor($id)
-    {
-        $spj = \App\Models\Spj::with([
-            'anggaran.subKegiatan.kegiatan.program',
-            'daftarHonor',
-            'anggaran.pptk'
-        ])->findOrFail($id);
+public function cetakHonor($id)
+{
+    $spj = \App\Models\Spj::with([
+        'anggaran.subKegiatan.kegiatan.program',
+        'daftarHonor',
+        'anggaran.pptk'
+    ])->findOrFail($id);
 
-        $unit = \App\Models\UserModel::with('unit')->find(Auth::id())->unit;
+    $unit = \App\Models\UserModel::with('unit')->find(Auth::id())->unit;
 
-        // Hitung total pajak, honor, diterima
-        $totalHonor  = $spj->daftarHonor->sum('jumlah');
-        $totalPajak  = $spj->daftarHonor->sum('nilai_pajak');
-        $totalTerima = $spj->daftarHonor->sum('diterima');
+    // Hitung total pajak, honor, diterima
+    $totalHonor  = $spj->daftarHonor->sum('jumlah');
+    $totalPajak  = $spj->daftarHonor->sum('nilai_pajak');
+    $totalTerima = $spj->daftarHonor->sum('diterima');
 
-        $terbilang = ucwords(strtolower($this->terbilang($totalTerima))) . " Rupiah";
-        $tanggal = \Carbon\Carbon::parse($spj->tanggal)->translatedFormat('d F Y');
+    $terbilang = ucwords(strtolower($this->terbilang($totalTerima))) . " Rupiah";
+    $tanggal = \Carbon\Carbon::parse($spj->tanggal)->translatedFormat('d F Y');
 
-        $pdf = PDF::loadView('Spj.Print.HonorPdf', [
-            'spj'         => $spj,
-            'unit'        => $unit,
-            'totalHonor'  => $totalHonor,
-            'totalPajak'  => $totalPajak,
-            'totalTerima' => $totalTerima,
-            'terbilang'   => $terbilang,
-            'tanggal'     => $tanggal
-        ])->setPaper([0, 0, 595.28, 935.43], 'landscape');
+    $pdf = PDF::loadView('Spj.Print.HonorPdf', [
+        'spj'         => $spj,
+        'unit'        => $unit,
+        'totalHonor'  => $totalHonor,
+        'totalPajak'  => $totalPajak,
+        'totalTerima' => $totalTerima,
+        'terbilang'   => $terbilang,
+        'tanggal'     => $tanggal
+    ])->setPaper([0, 0, 595.28, 935.43], 'landscape');
 
-        return $pdf->stream("daftar-penerima-honor-pajak.pdf");
+    return $pdf->stream("daftar-penerima-honor-pajak.pdf");
+}
+
+public function getRkaForSpj()
+{
+    $user = Auth::user();
+
+    // ambil lock tahap AKTIF milik OPD login
+    $lock = \App\Models\RkaLock::where('is_active', 1)
+        ->where('id_unit', $user->id_unit)
+        ->first();
+
+    // 🚫 BELUM ADA TAHAP AKTIF ATAU BELUM DIKUNCI
+    if (!$lock || $lock->is_locked == 0) {
+        return response()->json([]); // => Select2 akan "No results found"
     }
 
-    public function getRkaForSpj()
-    {
-        $user = Auth::user();
+    // ✅ TAHAP SUDAH DIKUNCI → BOLEH SPJ
+    $rka = Anggaran::with('subKegiatan')
+        ->where('id_unit', $user->id_unit)
+        ->where('tahun', $user->tahun) // 🔥 FILTER TAHUN
+        // ->where('sisa_pagu', '>', 0) // 🔥 opsional tapi BAGUS
+        ->orderBy('id', 'desc')
+        ->get()
+        ->map(function ($a) {
+            return [
+                'id'   => $a->id,
+                'text' => $a->subKegiatan->kode . ' - ' . $a->subKegiatan->nama,
+                'sisapagu' => $a->sisa_pagu,
+            ];
+        });
 
-        // ambil lock tahap AKTIF milik OPD login
-        $lock = \App\Models\RkaLock::where('is_active', 1)
-            ->where('id_unit', $user->id_unit)
-            ->first();
-
-        // 🚫 BELUM ADA TAHAP AKTIF ATAU BELUM DIKUNCI
-        if (!$lock || $lock->is_locked == 0) {
-            return response()->json([]); // => Select2 akan "No results found"
-        }
-
-        // ✅ TAHAP SUDAH DIKUNCI → BOLEH SPJ
-        $rka = Anggaran::with('subKegiatan')
-            ->where('id_unit', $user->id_unit)
-            ->where('sisa_pagu', '>', 0) // 🔥 opsional tapi BAGUS
-            ->orderBy('id', 'desc')
-            ->get()
-            ->map(function ($a) {
-                return [
-                    'id'   => $a->id,
-                    'text' => $a->subKegiatan->kode . ' - ' . $a->subKegiatan->nama,
-                    'sisapagu' => $a->sisa_pagu,
-                ];
-            });
-
-        return response()->json($rka);
-    }
+    return response()->json($rka);
+}
 
 }

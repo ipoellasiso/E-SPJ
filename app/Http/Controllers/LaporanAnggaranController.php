@@ -31,7 +31,10 @@ class LaporanAnggaranController extends Controller
         $user = Auth::guard('web')->user(); // ambil user yang login
 
         $rka_locks = RkaLock::orderBy('id')->get();
-        $active_lock = RkaLock::where('is_active', 1)->first();
+        $active_lock = RkaLock::where('is_active', 1)
+            ->where('id_unit', $user->id_unit)
+            ->where('tahun', $user->tahun)
+            ->first();
         
         $data = [
             'title'                 => 'Data RKA',
@@ -49,6 +52,7 @@ class LaporanAnggaranController extends Controller
         if ($request->ajax()) {
             $anggaran = Anggaran::with('subKegiatan.kegiatan.program.bidang.urusan')
             ->where('id_unit', $user->id_unit) // langsung pakai unit dari user login
+            ->where('tahun', $user->tahun) // 🔥 DINAMIS
             ->orderBy('id', 'desc');
 
             return DataTables::of($anggaran)
@@ -115,7 +119,11 @@ class LaporanAnggaranController extends Controller
         $subRincian = $anggaran->rincian;
         $rincian = $this->buildHierarki($subRincian);
 
-        $active_lock = \App\Models\RkaLock::where('is_active', 1)->first();
+        // $active_lock = \App\Models\RkaLock::where('is_active', 1)->first();
+        $active_lock = RkaLock::where('is_active', 1)
+            ->where('id_unit', $user->id_unit)
+            ->where('tahun', $user->tahun)
+            ->first();
         
         $data = [
             'title'         => 'Detail RKA',
@@ -259,40 +267,37 @@ class LaporanAnggaranController extends Controller
     {
         $request->validate([
             'id_subkegiatan' => 'nullable|numeric',
-            'sumber_dana' => 'required',
-            'pagu_anggaran' => 'required|numeric',
+            'sumber_dana'    => 'required',
+            'pagu_anggaran'  => 'required|numeric',
         ]);
-
-        // ✅ Cek apakah subkegiatan ada
-        $idSub = null;
-        if ($request->filled('id_subkegiatan') && \App\Models\SubKegiatan::find($request->id_subkegiatan)) {
-            $idSub = $request->id_subkegiatan;
-        }
 
         // ✅ Ambil ID unit dari user login
         $idUnit = Auth::user()->id_unit ?? null;
 
-        $anggaran = Anggaran::find($request->id);
-
+        // 🔐 CEK TAHAP RKA TERKUNCI
         if ($this->isRkaLocked()) {
             return response()->json([
                 'error' => 'RKA dikunci dan tidak bisa disimpan.'
             ], 403);
         }
 
+        // 💾 SIMPAN RKA
         $anggaran = Anggaran::updateOrCreate(
             ['id' => $request->id],
             [
-                'id_subkegiatan' => $idSub, // kalau tidak valid -> null
-                'sumber_dana' => $request->sumber_dana,
-                'pagu_anggaran' => $request->pagu_anggaran,
-                'tahun' => auth()->user()->tahun ?? date('Y'),
-                'id_unit' => $idUnit, // 🔥 isi otomatis dari user login
-                'id_pptk' => $request->id_pptk,   // 🔥 tambah ini
+                'id_subkegiatan' => $request->id_subkegiatan,
+                'sumber_dana'    => $request->sumber_dana,
+                'pagu_anggaran'  => $request->pagu_anggaran,
+                'tahun'          => Auth::user()->tahun ?? date('Y'),
+                'id_unit'        => $idUnit,
+                'id_pptk'        => $request->id_pptk,
             ]
         );
 
-        return response()->json(['success' => true, 'data' => $anggaran]);
+        return response()->json([
+            'success' => true,
+            'data'    => $anggaran
+        ]);
     }
 
     // public function edit($id)
@@ -486,26 +491,24 @@ class LaporanAnggaranController extends Controller
 
     public function getSubKegiatan(Request $request)
     {
+        $user = Auth::user();
         $search = $request->q;
 
-        $subKegiatan = DB::table('sub_kegiatan')
-            ->select('id', 'kode', 'nama')
-            ->when($search, function ($query, $search) {
-                $query->where('nama', 'like', "%{$search}%")
-                    ->orWhere('kode', 'like', "%{$search}%");
+        $data = DB::table('sub_kegiatan as sk')
+            ->join('sub_kegiatan_unit as sku', 'sku.id_sub_kegiatan', '=', 'sk.id')
+            ->where('sku.id_unit', $user->id_unit)
+            ->when($search, function ($q) use ($search) {
+                $q->where('sk.nama', 'like', "%$search%")
+                ->orWhere('sk.kode', 'like', "%$search%");
             })
-            ->orderBy('kode', 'asc')
+            ->orderBy('sk.kode')
             ->limit(20)
-            ->get();
+            ->get([
+                'sk.id',
+                DB::raw("CONCAT(sk.kode,' - ',sk.nama) as text")
+            ]);
 
-        $formatted = $subKegiatan->map(function ($item) {
-            return [
-                'id' => $item->id,
-                'text' => "{$item->kode} - {$item->nama}"
-            ];
-        });
-
-        return response()->json($formatted);
+        return response()->json($data);
     }
 
     private function sortKode($a, $b)
@@ -535,6 +538,7 @@ class LaporanAnggaranController extends Controller
 
         $active = RkaLock::where('is_active', 1)
             ->where('id_unit', $user->id_unit)
+            ->where('tahun', $user->tahun) // 🔥 KUNCI UTAMA
             ->first();
 
         if (!$active) return false;
@@ -544,9 +548,13 @@ class LaporanAnggaranController extends Controller
 
     public function setActive(Request $request)
     {
-        RkaLock::query()->update(['is_active' => 0]); // matikan semua
+        RkaLock::where('id_unit', Auth::user()->id_unit)
+            ->where('tahun', Auth::user()->tahun)
+            ->update(['is_active' => 0]);
 
         RkaLock::where('tahap', $request->tahap)
+            ->where('id_unit', Auth::user()->id_unit)
+            ->where('tahun', Auth::user()->tahun)
             ->update(['is_active' => 1]);
 
         return response()->json(['success' => true]);
@@ -559,7 +567,8 @@ class LaporanAnggaranController extends Controller
         $lock = RkaLock::firstOrCreate(
             [
                 'tahap'   => $request->tahap,
-                'id_unit' => $user->id_unit
+                'id_unit' => $user->id_unit,
+                'tahun'   => $user->tahun, // 🔥
             ],
             [
                 'is_active' => 1,
@@ -576,6 +585,48 @@ class LaporanAnggaranController extends Controller
                 ? 'Tahap OPD berhasil dikunci'
                 : 'Tahap OPD berhasil dibuka'
         ]);
+    }
+
+    public function getUrusan(Request $request)
+    {
+        return \App\Models\Urusan::select(
+            'id',
+            DB::raw("CONCAT(kode,' - ',nama) as text")
+        )
+        ->orderBy('kode')
+        ->get();
+    }
+
+    public function getBidang(Request $request)
+    {
+        return \App\Models\BidangUrusan::where('id_urusan', $request->id_urusan)
+            ->select('id', DB::raw("CONCAT(kode,' - ',nama) as text"))
+            ->orderBy('kode')
+            ->get();
+    }
+
+    public function getProgram(Request $request)
+    {
+        return \App\Models\Program::where('id_bidang', $request->id_bidang)
+            ->select('id', DB::raw("CONCAT(kode,' - ',nama) as text"))
+            ->orderBy('kode')
+            ->get();
+    }
+
+    public function getKegiatan(Request $request)
+    {
+        return \App\Models\Kegiatan::where('id_program', $request->id_program)
+            ->select('id', DB::raw("CONCAT(kode,' - ',nama) as text"))
+            ->orderBy('kode')
+            ->get();
+    }
+
+    public function getSubKegiatanByKegiatan(Request $request)
+    {
+        return \App\Models\SubKegiatan::where('id_kegiatan', $request->id_kegiatan)
+            ->select('id', DB::raw("CONCAT(kode,' - ',nama) as text"))
+            ->orderBy('kode')
+            ->get();
     }
 
 }

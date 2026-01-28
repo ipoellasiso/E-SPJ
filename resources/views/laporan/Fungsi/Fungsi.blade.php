@@ -120,32 +120,48 @@ $(function () {
     });
 
     // === Inisialisasi Select2 di dalam modal ===
+    function initSelect(id, url, extra = {}) {
+        $(id).select2({
+            theme: 'bootstrap-5',
+            dropdownParent: $('#tambahRka'),
+            placeholder: 'Pilih...',
+            ajax: {
+                url: url,
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return { q: params.term, ...extra };
+                },
+                processResults: function (data) {
+                    return { results: data };
+                }
+            }
+        });
+    }
+
     $('#tambahRka').on('shown.bs.modal', function () {
 
-        // Cegah duplikasi jika modal dibuka berkali-kali
-        if (!$('#id_subkegiatan').data('select2')) {
+        initSelect('#urusan', '/api/urusan');
 
-            $('#id_subkegiatan').select2({
-                theme: 'bootstrap-5',
-                placeholder: 'Cari Sub Kegiatan...',
-                dropdownParent: $('#tambahRka'), // <== WAJIB kalau di dalam modal
-                ajax: {
-                    url: "{{ route('rka.subkegiatan.select') }}",
-                    dataType: 'json',
-                    delay: 250,
-                    data: function (params) {
-                        return { q: params.term };
-                    },
-                    processResults: function (data) {
-                        return { results: data };
-                    },
-                    cache: true
-                },
-                minimumInputLength: 1
-            });
+        $('#urusan').on('change', function () {
+            $('#bidang').empty();
+            initSelect('#bidang', '/api/bidang', { id_urusan: this.value });
+        });
 
-            console.log('✅ Select2 berhasil diinisialisasi dalam modal');
-        }
+        $('#bidang').on('change', function () {
+            $('#program').empty();
+            initSelect('#program', '/api/program', { id_bidang: this.value });
+        });
+
+        $('#program').on('change', function () {
+            $('#kegiatan').empty();
+            initSelect('#kegiatan', '/api/kegiatan', { id_program: this.value });
+        });
+
+        $('#kegiatan').on('change', function () {
+            $('#sub_kegiatan').empty();
+            initSelect('#sub_kegiatan', '/api/sub-kegiatan', { id_kegiatan: this.value });
+        });
     });
     
     // === SET TAHAP AKTIF ===

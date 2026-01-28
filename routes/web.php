@@ -9,6 +9,7 @@ use App\Http\Controllers\KegiatanController;
 use App\Http\Controllers\KelompokController;
 use App\Http\Controllers\Landing_pageController;
 use App\Http\Controllers\LaporanAnggaranController;
+use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\ObjekController;
 use App\Http\Controllers\PptkController;
 use App\Http\Controllers\ProgramController;
@@ -24,7 +25,7 @@ use Illuminate\Support\Facades\Route;
 //     return view('Tampilan_tambahan.Landing_page');
 // });
 
-Route::get('/', [AuthController::class, 'login']);
+Route::get('/', [MaintenanceController::class, 'index']);
 // Route::get('/', [MaintenanceController::class, 'index']);
 
 // AUTH
@@ -50,6 +51,12 @@ Route::delete('/rka/destroy/{id}', [LaporanAnggaranController::class, 'destroy']
 Route::get('/rka/edit/{id}', [LaporanAnggaranController::class, 'edit'])->name('rka.edit')->middleware('auth:web','checkRole:Admin,User');
 Route::get('/rka/{id}', [LaporanAnggaranController::class, 'show'])->name('rka.show')->middleware('auth:web','checkRole:Admin,User');
 Route::get('/rka/subkegiatan/select', [LaporanAnggaranController::class, 'getSubKegiatan'])->name('rka.subkegiatan.select')->middleware('auth:web','checkRole:Admin,User');
+
+Route::get('/api/urusan', [LaporanAnggaranController::class, 'getUrusan'])->middleware('auth:web','checkRole:Admin,User');
+Route::get('/api/bidang', [LaporanAnggaranController::class, 'getBidang'])->middleware('auth:web','checkRole:Admin,User');
+Route::get('/api/program', [LaporanAnggaranController::class, 'getProgram'])->middleware('auth:web','checkRole:Admin,User');
+Route::get('/api/kegiatan', [LaporanAnggaranController::class, 'getKegiatan'])->middleware('auth:web','checkRole:Admin,User');
+Route::get('/api/sub-kegiatan', [LaporanAnggaranController::class, 'getSubKegiatanByKegiatan'])->middleware('auth:web','checkRole:Admin,User');
 
 // CRUD RINCIAN via AJAX (semua lewat controller yang sama)
 Route::post('/rka/{id}/rincian/store', [LaporanAnggaranController::class, 'storeRincian'])->name('rka.rincian.store')->middleware('auth:web','checkRole:Admin,User');

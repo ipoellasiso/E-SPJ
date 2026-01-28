@@ -12,6 +12,7 @@ class RkaLock extends Model
         'tahap',
         'id_unit',
         'is_active',
-        'is_locked'
+        'is_locked',
+        'tahun'
     ];
 }

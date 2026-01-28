@@ -39,7 +39,7 @@ class Anggaran extends Model
 
     public function subKegiatan()
     {
-        return $this->belongsTo(SubKegiatan::class, 'id_subkegiatan');
+        return $this->belongsTo(SubKegiatan::class, 'id_subkegiatan', 'id');
     }
 
     public function unit()

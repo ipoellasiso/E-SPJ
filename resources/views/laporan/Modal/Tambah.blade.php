@@ -8,12 +8,30 @@
         @csrf
         <input type="hidden" name="id" id="id">
         <div class="modal-body">
-            <div class="form-group mb-2">
-              <label>Sub Kegiatan</label>
-              <select name="id_subkegiatan" id="id_subkegiatan" class="form-control" style="width: 100%">
-                  <option value="">Pilih Sub Kegiatan...</option>
-              </select>
-            </div>
+            <div class="mb-2">
+            <label>Urusan</label>
+            <select id="urusan" class="form-control"></select>
+        </div>
+
+        <div class="mb-2">
+            <label>Bidang Urusan</label>
+            <select id="bidang" class="form-control"></select>
+        </div>
+
+        <div class="mb-2">
+            <label>Program</label>
+            <select id="program" class="form-control"></select>
+        </div>
+
+        <div class="mb-2">
+            <label>Kegiatan</label>
+            <select id="kegiatan" class="form-control"></select>
+        </div>
+
+        <div class="mb-2">
+            <label>Sub Kegiatan</label>
+            <select name="id_subkegiatan" id="sub_kegiatan" class="form-control"></select>
+        </div>
             <div class="form-group mb-2">
               <label>PPTK</label>
               <select name="id_pptk" id="id_pptk" class="form-control">
