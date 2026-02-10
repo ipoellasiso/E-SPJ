@@ -25,7 +25,7 @@ use Illuminate\Support\Facades\Route;
 //     return view('Tampilan_tambahan.Landing_page');
 // });
 
-Route::get('/', [MaintenanceController::class, 'index']);
+Route::get('/', [AuthController::class, 'login']);
 // Route::get('/', [MaintenanceController::class, 'index']);
 
 // AUTH
