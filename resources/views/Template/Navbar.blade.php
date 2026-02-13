@@ -20,11 +20,25 @@
                 <div class="dropdown">
                     <a href="#" data-bs-toggle="dropdown" aria-expanded="false">
                         <div class="user-menu d-flex">
-                            <div class="user-name text-end me-3">
-                                <h6 class="mb-0 text-gray-600">{{ $userx->fullname }}</h6>
-                                <p class="mb-0 text-sm text-gray-600">{{ $userx->role }} {{ $userx->tahun }}</p>
-                                {{-- <p class="mb-0 text-sm text-gray-600">{{ $userx->tahun }}</p> --}}
-                            </div>
+                            <div class="user-menu d-flex align-items-center">
+                                <div class="user-name text-end me-3">
+
+                                    <!-- 🔥 RUNNING USER -->
+                                    <div class="running-text">
+                                        <span>Selamat Datang {{ $userx->fullname }}</span>
+                                    </div>
+
+                                    <!-- 🔥 META INFO -->
+                                    <div class="user-meta">
+                                        {{ $userx->role }} • {{ $userx->tahun }}
+                                    </div>
+
+                                    <!-- 🔥 OPD -->
+                                    {{-- <div class="user-opd">
+                                        {{ $userx->unit->nama ?? 'OPD tidak ditemukan' }}
+                                    </div> --}}
+
+                                </div>
                             <div class="user-img d-flex align-items-center">
                                 <div class="avatar avatar-md">
                                     @if(Auth::user()->role == 'Admin' || Auth::user()->role == 'Verifikasi' || Auth::user()->role == 'User')

@@ -58,5 +58,58 @@
         .colored-toast .swal2-html-container {
         color: white;
         }
+
+        /* ============================= */
+        /* RUNNING TEXT */
+        /* ============================= */
+
+        .running-text {
+            width: 160px;
+            overflow: hidden;
+            white-space: nowrap;
+            position: relative;
+            font-size: 15px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .running-text span {
+            display: inline-block;
+            padding-left: 100%;
+            animation: sipd-marquee 10s linear infinite;
+        }
+
+        .running-text span:hover {
+            animation-play-state: paused;
+        }
+
+        /* ============================= */
+        /* USER META */
+        /* ============================= */
+
+        .user-meta {
+            font-size: 12.5px;
+            color: #6c757d;
+            line-height: 1.2;
+        }
+
+        /* ============================= */
+        /* OPD */
+        /* ============================= */
+
+        .user-opd {
+            font-size: 12px;
+            color: #9aa0ac;
+            line-height: 1.2;
+        }
+
+        /* ============================= */
+        /* ANIMASI HALUS */
+        /* ============================= */
+
+        @keyframes sipd-marquee {
+            0%   { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
     </style>
     

@@ -9,6 +9,7 @@ td.wrap-uraian {
     white-space: pre-line !important;
     max-width: 350px;   /* Bisa disesuaikan */
 }
+
 </style>
 
 <div class="card">

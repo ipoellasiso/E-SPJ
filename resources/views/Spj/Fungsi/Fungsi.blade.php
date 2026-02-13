@@ -77,6 +77,7 @@
                         $('#selectRka').val(spj.id_anggaran).trigger('change');
 
                         $('#selectRekanan').val(spj.id_rekanan).trigger('change');  // 🔥 WAJIB
+                        $('#selectSumberDana').val(spj.sumber_dana).trigger('change'); // 🔥 TAMBAH
 
                         // === Isi rekening tanpa trigger change ===
                         let rekeningSelect = $('#selectRekening');
@@ -201,6 +202,12 @@
                 let idAnggaran = $(this).val();
                 sisaPaguAktif = parseFloat($(this).find(':selected').data('sisapagu')) || 0;
 
+                let sumberDana = $(this).find(':selected').data('sumber');
+
+                if (sumberDana) {
+                    $('#selectSumberDana').val(sumberDana).trigger('change');
+                }
+
                 if (!idAnggaran) return;
 
                 $.getJSON(`/spj/get-rekening/${idAnggaran}`, function (res) {
@@ -208,7 +215,7 @@
                         let rekeningSelect = $('#selectRekening');
                         rekeningSelect.empty().append('<option value="">-- Pilih Rekening Belanja --</option>');
                         res.data.forEach(item => {
-                            rekeningSelect.append(`<option value="${item.kode_rekening}">${item.kode_rekening}</option>`);
+                            rekeningSelect.append(`<option value="${item.kode_rekening}">${item.kode_rekening} - ${item.nama_rekening ?? ''}</option>`);
                         });
                     }
                 });
@@ -612,7 +619,11 @@
                 validasiHonorDenganSpj(); // fungsi validasi lama tetap dipakai
             });
 
-            
+            $('#selectSumberDana').select2({
+                theme: 'bootstrap-5',
+                dropdownParent: $('#modalSpj'),
+                placeholder: '-- Pilih Sumber Dana --'
+            });
 
     });
     </script>

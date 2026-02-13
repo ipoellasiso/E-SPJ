@@ -106,7 +106,7 @@
     <tr>
         <td class="label">Sumber Dana</td>
         <td class="colon">:</td>
-        <td class="value">DAU</td>
+        <td class="value">{{ $spj->sumber_dana ?? '-' }}</td>
     </tr>
 
     <tr>

@@ -28,6 +28,7 @@ class Spj extends Model
         'id_rekanan',
         'tanggal_nope',
         'jenis_kwitansi',
+        'sumber_dana'
     ];
 
     /**

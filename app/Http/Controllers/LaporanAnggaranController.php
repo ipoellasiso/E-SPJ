@@ -589,43 +589,79 @@ class LaporanAnggaranController extends Controller
 
     public function getUrusan(Request $request)
     {
-        return \App\Models\Urusan::select(
-            'id',
-            DB::raw("CONCAT(kode,' - ',nama) as text")
-        )
-        ->orderBy('kode')
-        ->get();
+        return \App\Models\Urusan::
+
+            when($request->q, function ($q) use ($request) {
+                $q->where('nama', 'like', '%' . $request->q . '%')
+                ->orWhere('kode', 'like', '%' . $request->q . '%');
+            })
+
+            ->select(
+                'id',
+                DB::raw("CONCAT(kode,' - ',nama) as text")
+            )
+            ->orderBy('kode')
+            ->limit(20)
+            ->get();
     }
 
     public function getBidang(Request $request)
     {
         return \App\Models\BidangUrusan::where('id_urusan', $request->id_urusan)
+
+            ->when($request->q, function ($q) use ($request) {
+                $q->where('nama', 'like', '%' . $request->q . '%')
+                ->orWhere('kode', 'like', '%' . $request->q . '%');
+            })
+
             ->select('id', DB::raw("CONCAT(kode,' - ',nama) as text"))
             ->orderBy('kode')
+            ->limit(20)
             ->get();
     }
 
     public function getProgram(Request $request)
     {
         return \App\Models\Program::where('id_bidang', $request->id_bidang)
+
+            ->when($request->q, function ($q) use ($request) {
+                $q->where('nama', 'like', '%' . $request->q . '%')
+                ->orWhere('kode', 'like', '%' . $request->q . '%');
+            })
+
             ->select('id', DB::raw("CONCAT(kode,' - ',nama) as text"))
             ->orderBy('kode')
+            ->limit(20)
             ->get();
     }
 
     public function getKegiatan(Request $request)
     {
         return \App\Models\Kegiatan::where('id_program', $request->id_program)
+
+            ->when($request->q, function ($q) use ($request) {
+                $q->where('nama', 'like', '%' . $request->q . '%')
+                ->orWhere('kode', 'like', '%' . $request->q . '%');
+            })
+
             ->select('id', DB::raw("CONCAT(kode,' - ',nama) as text"))
             ->orderBy('kode')
+            ->limit(20)
             ->get();
     }
 
     public function getSubKegiatanByKegiatan(Request $request)
     {
         return \App\Models\SubKegiatan::where('id_kegiatan', $request->id_kegiatan)
+
+            ->when($request->q, function ($q) use ($request) {
+                $q->where('nama', 'like', '%' . $request->q . '%')
+                ->orWhere('kode', 'like', '%' . $request->q . '%');
+            })
+
             ->select('id', DB::raw("CONCAT(kode,' - ',nama) as text"))
             ->orderBy('kode')
+            ->limit(20)
             ->get();
     }
 

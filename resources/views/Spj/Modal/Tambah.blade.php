@@ -68,6 +68,17 @@
               <input type="date" name="tanggal_nope" class="form-control" required>
             </div>
 
+            <div class="col-md-4 mb-2">
+                <label>Sumber Dana</label>
+                <select name="sumber_dana" id="selectSumberDana" class="form-control">
+                    <option value="">-- Pilih Sumber Dana --</option>
+                    <option value="DAU">DAU</option>
+                    <option value="DAK">DAK</option>
+                    <option value="PAD">PAD</option>
+                    <option value="DBH">DBH</option>
+                </select>
+            </div>
+
             <div class="col-md-12 mb-2">
               <label>Uraian</label>
               <textarea name="uraian" class="form-control" rows="2" placeholder="Masukkan uraian..."></textarea>

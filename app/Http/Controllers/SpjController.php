@@ -240,6 +240,7 @@ public function store(Request $request)
             'nomor_bapb' => $nomorBAPB,
             'nomor_bast' => $nomorBAST,
             'nomor_ba_penerimaan' => $nomorBATerima,
+            'sumber_dana' => $request->sumber_dana, // 🔥 INI WAJIB
             'jenis_kwitansi' => $request->jenis_kwitansi,
         ]);
 
@@ -438,8 +439,17 @@ public function destroy($id)
 public function getRekening($id_anggaran)
 {
     try {
-        $rincian = \App\Models\RincianAnggaran::where('id_anggaran', $id_anggaran)
-            ->select('kode_rekening')
+
+        $rincian = RincianAnggaran::where('id_anggaran', $id_anggaran)
+
+            ->select(
+                'kode_rekening',
+                DB::raw("(SELECT uraian 
+                          FROM sub_rincian_objek 
+                          WHERE sub_rincian_objek.kode = rincian_anggaran.kode_rekening 
+                          LIMIT 1) as nama_rekening")
+            )
+
             ->distinct()
             ->get();
 
@@ -447,8 +457,12 @@ public function getRekening($id_anggaran)
             'success' => true,
             'data' => $rincian
         ]);
+
     } catch (\Exception $e) {
-        return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ]);
     }
 }
 
@@ -576,6 +590,7 @@ public function update(Request $request, $id)
             'uraian' => $request->uraian,
             'total' => $totalBaru,
             'id_rekanan' => $request->id_rekanan,   // 🔥 FIX
+            'sumber_dana' => $request->sumber_dana,   // 🔥 FIX
         ]);
 
         // 🔹 Tambah detail baru & kurangi lagi rincian_anggaran
@@ -1162,32 +1177,44 @@ public function cetakHonor($id)
     return $pdf->stream("daftar-penerima-honor-pajak.pdf");
 }
 
-public function getRkaForSpj()
+ public function getRkaForSpj(Request $request)
 {
     $user = Auth::user();
 
-    // ambil lock tahap AKTIF milik OPD login
     $lock = \App\Models\RkaLock::where('is_active', 1)
         ->where('id_unit', $user->id_unit)
         ->first();
 
-    // 🚫 BELUM ADA TAHAP AKTIF ATAU BELUM DIKUNCI
     if (!$lock || $lock->is_locked == 0) {
-        return response()->json([]); // => Select2 akan "No results found"
+        return response()->json([]);
     }
 
-    // ✅ TAHAP SUDAH DIKUNCI → BOLEH SPJ
+    $search = $request->q;
+
     $rka = Anggaran::with('subKegiatan')
+
         ->where('id_unit', $user->id_unit)
-        ->where('tahun', $user->tahun) // 🔥 FILTER TAHUN
-        // ->where('sisa_pagu', '>', 0) // 🔥 opsional tapi BAGUS
+        ->where('tahun', $user->tahun)
+
+        ->when($search, function ($q) use ($search) {
+            $q->whereHas('subKegiatan', function ($sub) use ($search) {
+                $sub->where(function ($x) use ($search) {
+                    $x->where('nama', 'like', "%$search%")
+                      ->orWhere('kode', 'like', "%$search%");
+                });
+            });
+        })
+
         ->orderBy('id', 'desc')
+        ->limit(20) // 🔥 WAJIB UNTUK SELECT2
         ->get()
+
         ->map(function ($a) {
             return [
                 'id'   => $a->id,
                 'text' => $a->subKegiatan->kode . ' - ' . $a->subKegiatan->nama,
                 'sisapagu' => $a->sisa_pagu,
+                'sumber' => $a->sumber_dana, // 🔥 TAMBAH INI
             ];
         });
 
