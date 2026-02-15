@@ -24,7 +24,17 @@ class UserModel extends Model
         'gambar',
         'is_active',
         'tahun',
-        'id_unit'
+        'id_unit',
+        
+        // Pejabat
+        'kepala', 'nip_kepala',
+        'bendahara', 'nip_bendahara',
+        'ppk', 'nip_ppk',
+        'pejabatbarang', 'nip_pejabatbarang',
+        'bend_barang', 'nip_bend_barang',
+
+        // SK & Alamat
+        'nomor_sk', 'tanggal_sk', 'alamat',
 
     ];
 

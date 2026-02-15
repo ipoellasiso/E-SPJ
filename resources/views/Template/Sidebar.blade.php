@@ -117,9 +117,6 @@
                             <li class="submenu-item @if(isset($active_sideuser)){{ $active_sideuser }} @endif">
                                 <a href="/tampiluser">List User</a>
                             </li>
-                            <li class="submenu-item ">
-                                <a href="form-element-input.html">Profil</a>
-                            </li>
                         </ul>
                     </li>
                 @endif

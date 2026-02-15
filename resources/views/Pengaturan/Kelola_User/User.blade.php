@@ -38,5 +38,6 @@
 </div>
 
 @include('Pengaturan.Kelola_User.Modal.Tambah')
+@include('Pengaturan.Kelola_User.Modal.Profil')
 @include('Pengaturan.Kelola_User.Fungsi.Fungsi')
 @endsection

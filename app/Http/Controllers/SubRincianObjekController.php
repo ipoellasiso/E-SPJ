@@ -64,7 +64,7 @@ class SubRincianObjekController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'kode' => 'required|string|max:15|unique:sub_rincian_objek,kode,'.$request->id,
+            'kode' => 'required|string|max:20|unique:sub_rincian_objek,kode,'.$request->id,
             'uraian' => 'required|string|max:255',
             'id_rincian_objek' => 'required|integer'
         ]);

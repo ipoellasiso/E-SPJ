@@ -20,6 +20,7 @@ use App\Http\Controllers\SpjPrintController;
 use App\Http\Controllers\SubKegiatanController;
 use App\Http\Controllers\SubRincianObjekController;
 use App\Http\Controllers\UnitOrganisasiController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 // Route::get('/', function () {
@@ -34,6 +35,17 @@ Route::get('/register', [AuthController::class, 'register']);
 Route::get('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/cek_login', [AuthController::class, 'cek_login']);
 Route::get('/logout', [AuthController::class, 'logout']);
+
+//DATA USER
+// User Management
+Route::get('/tampiluser',         [UserController::class, 'index'])->name('user.index')->middleware('auth:web','checkRole:Admin,User');
+Route::post('/user/store',        [UserController::class, 'store'])->name('user.store')->middleware('auth:web','checkRole:Admin,User');
+Route::get('/user/edit/{id}',     [UserController::class, 'edit'])->name('user.edit')->middleware('auth:web','checkRole:Admin,User');
+Route::delete('/user/destroy/{id}', [UserController::class, 'destroy'])->name('user.destroy')->middleware('auth:web','checkRole:Admin,User');
+Route::post('/user/nonaktif/{id}', [UserController::class, 'nonaktif'])->name('user.nonaktif')->middleware('auth:web','checkRole:Admin,User');
+Route::post('/user/aktif/{id}',   [UserController::class, 'aktif'])->name('user.aktif')->middleware('auth:web','checkRole:Admin,User');
+Route::get('/user/opd',           [UserController::class, 'getDataopd'])->name('user.opd')->middleware('auth:web','checkRole:Admin,User');
+Route::get('/user/show/{id}', [UserController::class, 'show'])->name('user.show')->middleware('auth:web','checkRole:Admin,User');
 
 // HOME
 Route::get('/home', [HomeController::class, 'index'])->middleware('auth:web','checkRole:Admin,User');

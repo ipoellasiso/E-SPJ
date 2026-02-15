@@ -48,6 +48,7 @@
         $.get("/user/edit/"+iduser, function (data) {
             $('#saveBtn').val("edit-user");
             $('#tambahuser').modal('show');
+            
             $('#id').val(data.id);
             $('#fullname').val(data.fullname);
             $('#email').val(data.email);
@@ -215,9 +216,9 @@
                 })
             }
         })
-        });
+    });
 
-        $('body').on('click', '.aktifUser', function () {
+    $('body').on('click', '.aktifUser', function () {
 
         var id = $(this).data("id");
 
@@ -253,7 +254,53 @@
             })
         }
         })
+    });
+
+    // ── Preview Profil User ─────────────────────────────────────
+    $('body').on('click', '.previewUser', function () {
+        var id = $(this).data('id');
+
+        // Reset dulu
+        $('#profil-nama').text('-');
+        $('#profil-opd').text('-');
+        $('#profil-email').text('-');
+        $('#profil-role').text('-');
+        $('#profil-role-badge').text('-');
+        $('#profil-status').html('-');
+        $('#profil-tahun').text('-');
+        $('#profil-foto').attr('src', 'https://via.placeholder.com/100');
+
+        $('#modalProfil').modal('show');
+
+        $.get('/user/show/' + id, function (data) {
+
+            // Foto
+            var fotoSrc = data.gambar
+                ? '/app/assets/images/user/' + data.gambar
+                : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(data.fullname) + '&background=1a73e8&color=fff&size=100';
+            $('#profil-foto').attr('src', fotoSrc);
+
+            // Nama & Role badge di banner
+            $('#profil-nama').text(data.fullname);
+            $('#profil-role-badge').text(data.role);
+
+            // Detail tabel
+            $('#profil-opd').text(data.nama_opd);
+            $('#profil-email').text(data.email);
+            $('#profil-role').text(data.role);
+            $('#profil-tahun').text(data.tahun);
+
+            // Status badge warna
+            var statusHtml = data.is_active === 'Aktif'
+                ? '<span class="badge bg-success"><i class="fa fa-check-circle"></i> Aktif</span>'
+                : '<span class="badge bg-danger"><i class="fa fa-times-circle"></i> Nonaktif</span>';
+            $('#profil-status').html(statusHtml);
+
+        }).fail(function () {
+            Swal.fire({ icon: 'error', title: 'Error', text: 'Gagal memuat data profil.' });
+            $('#modalProfil').modal('hide');
         });
+    });
 
 });
 

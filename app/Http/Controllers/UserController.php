@@ -44,20 +44,22 @@ class UserController extends Controller
             return Datatables::of($datauser)
                     ->addIndexColumn()
                     ->addColumn('action', function($row){
-
                             $btn = '
-                                    <a href="javascript:void(0)" title="Edit Data" data-id="'.$row->id.'" class="editUser btn btn-primary btn-sm">
-                                        <i class="fa fa-edit"></i> 
+                                <div class="d-flex gap-1 justify-content-center">
+                                    <a href="javascript:void(0)" title="Lihat Profil" data-id="'.$row->id.'"
+                                    class="previewUser btn btn-info btn-sm">
+                                        <i class="fa fa-eye"></i>
                                     </a>
-                                    ';
-
-                            $btn = $btn.'
-                                    <a href="javascript:void(0)" title="Hapus Data" data-id="'.$row->id.'" class="deleteUser btn btn-danger btn-sm">
-                                        <i class="fa fa-trash"></i> 
+                                    <a href="javascript:void(0)" title="Edit" data-id="'.$row->id.'"
+                                    class="editUser btn btn-primary btn-sm">
+                                        <i class="fa fa-edit"></i>
                                     </a>
-                                    ';
-
-                        return $btn;
+                                    <a href="javascript:void(0)" title="Hapus" data-id="'.$row->id.'"
+                                    class="deleteUser btn btn-danger btn-sm">
+                                        <i class="fa fa-trash"></i>
+                                    </a>
+                                </div>';
+                            return $btn;
                     })
                     // ->addColumn('is_active', function($row1){
                     //     $status = '';
@@ -142,13 +144,14 @@ class UserController extends Controller
 
     public function edit($id)
     {
-        $where = array('id' => $id);
-        $user = UserModel::where($where)->first();
-        // ->join('tb_opd', 'tb_opd.id', '=', 'tb_transaksi.id_opd')
-        // $user = DB::table('users')
-        //         ->select('users.id_opd', 'tb_opd.nama_opd', 'tb_opd.id', 'users.id')
-        //         ->join('tb_opd', 'tb_opd.id', '=', 'users.id_opd')
-        //         ->where($where)->first();
+        $user = DB::table('users')
+            ->select(
+                'users.*',
+                'opd.nama_opd'
+            )
+            ->join('opd', 'opd.id', '=', 'users.id_opd')
+            ->where('users.id', $id)
+            ->first();
 
         return response()->json($user);
     }
@@ -212,6 +215,17 @@ class UserController extends Controller
         UserModel::where('id', $id)->delete();
 
         return response()->json(['success'=>'Data Berhasil Dihapus']);
+    }
+
+    public function show($id)
+    {
+        $user = DB::table('users')
+            ->select('users.*', 'opd.nama_opd')
+            ->join('opd', 'opd.id', '=', 'users.id_opd')
+            ->where('users.id', $id)
+            ->first();
+
+        return response()->json($user);
     }
 }
 
