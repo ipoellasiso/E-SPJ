@@ -30,7 +30,18 @@ class LaporanAnggaranController extends Controller
         // $user = Auth::guard('web')->user()->id;
         $user = Auth::guard('web')->user(); // ambil user yang login
 
-        $rka_locks = RkaLock::orderBy('id')->get();
+        // $rka_locks = RkaLock::orderBy('id')->get();
+        // $active_lock = RkaLock::where('is_active', 1)
+        //     ->where('id_unit', $user->id_unit)
+        //     ->where('tahun', $user->tahun)
+        //     ->first();
+
+        // ✅ Filter hanya milik user yang login (id_unit & tahun)
+        $rka_locks = RkaLock::where('id_unit', $user->id_unit)
+                        ->where('tahun', $user->tahun)
+                        ->orderBy('id')
+                        ->get();
+
         $active_lock = RkaLock::where('is_active', 1)
             ->where('id_unit', $user->id_unit)
             ->where('tahun', $user->tahun)
